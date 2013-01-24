@@ -95,6 +95,34 @@ var insertToken = function (token, callback) {
 }
 
 var insertVote = function (userName, token, voteAmount, callback) {
+	var insertVoteQ = function (userName, token, voteAmount, callback) {	
+		var arrName = voteAmount === 1 ? 'plus' : 'minus';
+		connect('tokens', function (collTokens, client) {
+			var updateTokensStatement = {};
+			updateTokensStatement['$push'] = {};
+			updateTokensStatement['$push'][arrName] = userName;
+			updateTokensStatement['$inc'] = {};
+			updateTokensStatement['$inc']['votecount'] = 1;
+			updateTokensStatement['$inc']['vote'] = voteAmount;
+			updateTokensStatement['$set'] = {};
+			updateTokensStatement['$set']['lastvote'] = new Date();
+			collTokens.update({'token':token}, updateTokensStatement);
+			connect('users', function (collUsers, client) {
+				var updateUsersStatement = {};
+				updateUsersStatement['$push'] = {};
+				updateUsersStatement['$push'][arrName] = token;
+				updateUsersStatement['$inc'] = {};
+				updateUsersStatement['$inc']['votecount'] = 1;
+				updateUsersStatement['$set'] = {};
+				updateUsersStatement['$set']['lastvote'] = new Date();
+				collUsers.update({'name':userName}, updateUsersStatement);
+				if (callback) {
+					callback();
+				}
+				client.close();
+			});
+		});
+	};
 	getToken(token, function (foundToken) {
 		if (!foundToken) {
 			insertToken(token, function () {
@@ -103,35 +131,6 @@ var insertVote = function (userName, token, voteAmount, callback) {
 		} else {
 			insertVoteQ(userName, token, voteAmount, callback);
 		}
-	});
-}
-
-var insertVoteQ = function (userName, token, voteAmount, callback) {	
-	var arrName = voteAmount === 1 ? 'plus' : 'minus';
-	connect('tokens', function (collTokens, client) {
-		var updateTokensStatement = {};
-		updateTokensStatement['$push'] = {};
-		updateTokensStatement['$push'][arrName] = userName;
-		updateTokensStatement['$inc'] = {};
-		updateTokensStatement['$inc']['votecount'] = 1;
-		updateTokensStatement['$inc']['vote'] = voteAmount;
-		updateTokensStatement['$set'] = {};
-		updateTokensStatement['$set']['lastvote'] = new Date();
-		collTokens.update({'token':token}, updateTokensStatement);
-		connect('users', function (collUsers, client) {
-			var updateUsersStatement = {};
-			updateUsersStatement['$push'] = {};
-			updateUsersStatement['$push'][arrName] = token;
-			updateUsersStatement['$inc'] = {};
-			updateUsersStatement['$inc']['votecount'] = 1;
-			updateUsersStatement['$set'] = {};
-			updateUsersStatement['$set']['lastvote'] = new Date();
-			collUsers.update({'name':userName}, updateUsersStatement);
-			if (callback) {
-				callback();
-			}
-			client.close();
-		});
 	});
 }
 
