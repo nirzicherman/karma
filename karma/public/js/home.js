@@ -17,9 +17,9 @@ function postKarma( token, vote ) {
 
 	$.ajax('/karma/'+token, {
 		type: 'POST',
-		data: {
+		data: JSON.stringify({
 			'vote' : vote
-		},
+		}),
 		dataType: "json",
 		contentType: "application/json; charset=utf-8",
 		success: function( postKarmaResponse ) {
