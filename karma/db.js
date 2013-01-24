@@ -30,6 +30,50 @@ var getToken = function (token, callback) {
 	});
 }
 
+var getBestTokens = function (limit, callback) {
+	connect('tokens', function (coll, client) {
+		var cursor = coll.find({});
+		cursor.sort({'vote':-1}).limit(limit);
+		cursor.toArray(function (err, tokens) {
+			callback(tokens);
+			client.close();
+		});
+	});
+}
+
+var getWorstTokens = function (limit, callback) {
+	connect('tokens', function (coll, client) {
+		var cursor = coll.find({});
+		cursor.sort({'vote':1}).limit(limit);
+		cursor.toArray(function (err, tokens) {
+			callback(tokens);
+			client.close();
+		});
+	});
+}
+
+var getHottestTokens = function (limit, callback) {
+	connect('tokens', function (coll, client) {
+		var cursor = coll.find({});
+		cursor.sort({'votecount':-1}).limit(limit);
+		cursor.toArray(function (err, tokens) {
+			callback(tokens);
+			client.close();
+		});
+	});
+}
+
+var getRecentTokens = function (limit, callback) {
+	connect('tokens', function (coll, client) {
+		var cursor = coll.find({});
+		cursor.sort({'created':-1}).limit(limit);
+		cursor.toArray(function (err, tokens) {
+			callback(tokens);
+			client.close();
+		});
+	});
+}
+
 var insertUser = function (userName, password, callback) {
 	connect('users', function (coll, client) { 
 		coll.insert({'name':userName, 'created':new Date(), 'votecount':0, 'password':password, 'plus':[], 'minus':[]});
@@ -51,6 +95,18 @@ var insertToken = function (token, callback) {
 }
 
 var insertVote = function (userName, token, voteAmount, callback) {
+	getToken(token, function (foundToken) {
+		if (!foundToken) {
+			insertToken(token, function () {
+				insertVoteQ(userName, token, voteAmount, callback);
+			});
+		} else {
+			insertVoteQ(userName, token, voteAmount, callback);
+		}
+	});
+}
+
+var insertVoteQ = function (userName, token, voteAmount, callback) {	
 	var arrName = voteAmount === 1 ? 'plus' : 'minus';
 	connect('tokens', function (collTokens, client) {
 		var updateTokensStatement = {};
@@ -81,6 +137,10 @@ var insertVote = function (userName, token, voteAmount, callback) {
 
 module.exports.getToken = getToken;
 module.exports.getUser = getUser;
+module.exports.getBestTokens = getBestTokens;
+module.exports.getWorstTokens = getWorstTokens;
+module.exports.getHottestTokens = getHottestTokens;
+module.exports.getRecentTokens = getRecentTokens;
 module.exports.insertUser = insertUser;
 module.exports.insertToken = insertToken;
 module.exports.insertVote = insertVote;

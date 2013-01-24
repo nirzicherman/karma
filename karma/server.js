@@ -35,6 +35,51 @@ app.get('/karma/:token', function (req, res) {
 	});
 });
 
+app.get('/best/:limit', function (req, res) {
+	getList('getBestTokens', req, res);
+});
+
+app.get('/worst/:limit', function (req, res) {
+	getList('getWorstTokens', req, res);
+});
+
+app.get('/hottest/:limit', function (req, res) {
+	getList('getHottestTokens', req, res);
+});
+
+app.get('/recent/:limit', function (req, res) {
+	getList('getRecentTokens', req, res);
+});
+
+var getList = function (type, req, res) {
+	var parsedLimit = parseInt(req.params.limit);
+	if (!parsedLimit) {
+		res.send({tokens:[]});
+		return;
+	}
+	db[type](parsedLimit, function (tokens) {
+		if (!tokens) {
+			res.send({tokens:[]});
+		} else {
+			var webTokens = [];
+			for (var i = 0; i < tokens.length; i++) {
+				var webToken = {
+					token:tokens[i].token,
+					karma:tokens[i].vote,
+					votecount:tokens[i].votecount,
+					created:tokens[i].created,
+					lastvote:tokens[i].lastvote,
+					plus:tokens[i].plus,
+					minus:tokens[i].minus
+				};
+				webTokens.push(webToken);
+			}
+			res.send({tokens:webTokens});
+		}
+	});
+}
+
+
 app.post('/karma/:token', function (req, res) {
 	authenticateUser(req, res, true, function (user) {
 		var vote = req.body.vote;

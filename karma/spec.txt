@@ -26,6 +26,7 @@ GET /recent/:limit (gets the most recent)
 GET /hottest/:limit (gets the most voted on)
 	returns:
 	{
+		tokens:
 		[
 			{
 				token:"bananas",
