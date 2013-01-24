@@ -16,6 +16,38 @@ app.get('/register', function (req, res) {
 	res.render('register.html');
 });
 
+app.get('/karma/:token', function (req, res) {
+	db.getToken(req.params.token, function (token) {
+		if (!token) {
+			res.send({});
+		} else {
+			var webToken = {
+				token:token.token,
+				karma:token.vote,
+				votecount:token.votecount,
+				created:token.created,
+				lastvote:token.lastvote,
+				plus:token.plus,
+				minus:token.minus
+			};
+			res.send(webToken);
+		}
+	});
+});
+
+app.post('/karma/:token', function (req, res) {
+	authenticateUser(req, res, true, function (user) {
+		var vote = req.body.vote;
+		if (vote !== 1 && vote !== -1) {
+			res.send({status:'error'});
+			return;
+		}
+		db.insertVote(user.name, req.params.token, vote, function () {
+			res.send({status:'ok'});
+		});
+	});
+});
+
 app.post('/register', function (req, res) {
 	if (!req.body.username) {
 		res.send({error:'Username required!'});
@@ -40,7 +72,22 @@ app.post('/login', function (req, res) {
 			res.cookie('u', req.body.username, {signed:true});
 			res.send(200);
 		}
-	})
+	});
 });
+
+var authenticateUser = function (req, res, isAjax, callback) {
+	db.getUser(req.signedCookies.u, function (user) {
+		if (!user) {
+			res.clearCookie('u');
+			if (isAjax) {
+				res.send({status:'login'});
+			} else {
+				res.redirect('/');
+			}
+		} else {
+			callback(user);
+		}
+	});
+}
 
 app.listen(1337);
