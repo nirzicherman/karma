@@ -1,15 +1,16 @@
-/karma/:token (ex. /karma/bananas)
-GET -- Use this to get the current status of that token
+GET /karma/:token (ex. /karma/bananas) -- Use this to get the current status of that token
 	returns:
 	{
 		token:"bananas",
 		karma:3,
 		votecount:5,
 		created:"js date",
-		lastvote:"js date"
+		lastvote:"js date",
+		plus:["nir", "chris"],
+		minus:["joe"]
 	}
 
-POST -- Use this to vote on something (give it karma)
+POST /karma/:token (ex. /karma/bananas) -- Use this to vote on something (give it karma)
 	receives:
 	{
 		vote:1 or -1
@@ -17,4 +18,23 @@ POST -- Use this to vote on something (give it karma)
 	returns:
 	{
 		status:"[ok, error, or login]"
+	}
+
+GET /best/:limit (ex. /best/20) -- limit must be a number
+GET /worst/:limit
+GET /recent/:limit (gets the most recent)
+GET /hottest/:limit (gets the most voted on)
+	returns:
+	{
+		[
+			{
+				token:"bananas",
+				karma:3,
+				votecount:5,
+				created:"js date",
+				lastvote:"js date",
+				plus:["nir", "chris"],
+				minus:["joe"]
+			}
+		]
 	}
