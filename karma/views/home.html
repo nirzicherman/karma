@@ -19,6 +19,16 @@
 				window.location.replace('/');
 			});
 		});	
+
+		// CHRIS, replace this with yo magik
+		$.ajax({
+			type: 'GET',
+			url: '/news/10'
+		}).done(function (d) {
+			var html = d.events.map(function (ev) { return (ev.name + ' voted ' + ev.vote + ' on <span style="font-weight:bold;">' + ev.token + '</span>') }).join('<br />');
+			console.log(html);
+			$('#newsdiv').html(html);
+		});
 	});
 
 </script>
@@ -65,6 +75,8 @@
 
 			</ul>
 		</div>
+	</div>
+	<div id='newsdiv'>
 	</div>
 </body>
 <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
