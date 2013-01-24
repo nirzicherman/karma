@@ -1,0 +1,28 @@
+
+<li class="token span4">
+	<div class="karma token-controls pull-right" id="<%= token %>">
+	  <button class="btn btn-success karma-plus" type="button">&plus;</button>
+	  <button class="btn btn-danger karma-minus" type="button">&minus;</button>
+	</div>
+	<div class="token-itself pull-left">
+		<div class="token-overlay well">
+			<% if (karma === 0) { %>
+				<span class="badge pull-right">
+					<%= karma %>
+				</span>
+			<% } else if (karma > 0) { %>
+				<span class="badge badge-success pull-right">
+					+<%= karma %>
+				</span>
+			<% } else { %>
+				<span class="badge badge-important pull-right">
+					<%= karma %>
+				</span>
+			<% } %>
+			<h4 class="invert">
+				<%= token %>
+			</h4>
+		</div>
+	</div>
+
+</li>
