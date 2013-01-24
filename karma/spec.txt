@@ -1,0 +1,20 @@
+/karma/:token (ex. /karma/bananas)
+GET -- Use this to get the current status of that token
+	returns:
+	{
+		token:"bananas",
+		karma:3,
+		votecount:5,
+		created:"js date",
+		lastvote:"js date"
+	}
+
+POST -- Use this to vote on something (give it karma)
+	receives:
+	{
+		vote:1 or -1
+	}
+	returns:
+	{
+		status:"[ok, error, or login]"
+	}
