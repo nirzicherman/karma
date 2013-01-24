@@ -7,8 +7,13 @@ app.use(express.cookieParser('thisIStheSecret0fExpreSS'));
 app.use(express.bodyParser());
 
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/view'));
 
 app.engine('.html', require('ejs').renderFile);
+
+app.get('/file/:file', function (req, res) {
+	res.render(req.params.file);
+});
 
 app.get('/', function (req, res) {
 	res.render('home.html', {username:req.signedCookies.u});
@@ -53,6 +58,17 @@ app.get('/recent/:limit', function (req, res) {
 	getList('getRecentTokens', req, res);
 });
 
+app.get('/news/:limit', function (req, res) {
+	var parsedLimit = parseInt(req.params.limit);
+	if (!parsedLimit) {
+		res.send({tokens:[]});
+		return;
+	}
+	db.getRecentNews(parsedLimit, function (events) {
+		res.send({events:events});
+	});
+});
+
 var getList = function (type, req, res) {
 	var parsedLimit = parseInt(req.params.limit);
 	if (!parsedLimit) {
@@ -71,8 +87,8 @@ var getList = function (type, req, res) {
 					votecount:tokens[i].votecount,
 					created:tokens[i].created,
 					lastvote:tokens[i].lastvote,
-					plus:tokens[i].plus,
-					minus:tokens[i].minus
+					plus:tokens[i].plus.map(function (t) { return t.name }),
+					minus:tokens[i].minus.map(function (t) { return t.name })
 				};
 				webTokens.push(webToken);
 			}
@@ -80,7 +96,6 @@ var getList = function (type, req, res) {
 		}
 	});
 }
-
 
 app.post('/karma/:token', function (req, res) {
 	authenticateUser(req, res, true, function (user) {

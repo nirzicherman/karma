@@ -74,6 +74,26 @@ var getRecentTokens = function (limit, callback) {
 	});
 }
 
+var getRecentlyVotedTokens = function (limit, callback) {
+	connect('tokens', function (coll, client) {
+		var cursor = coll.find({});
+		cursor.sort({'lastvote':-1}).limit(limit);
+		cursor.toArray(function (err, tokens) {
+			callback(tokens);
+			client.close();
+		});
+	});
+}
+
+var getRecentNews = function (limit, callback) {
+	connect('news', function (coll, client) {
+		coll.find({}).sort({'created':-1}).limit(limit).toArray(function (err, events) {
+			callback(events);
+			client.close();
+		})
+	});
+}
+
 var insertUser = function (userName, password, callback) {
 	connect('users', function (coll, client) { 
 		coll.insert({'name':userName, 'created':new Date(), 'votecount':0, 'password':password, 'plus':[], 'minus':[]});
@@ -100,7 +120,7 @@ var insertVote = function (userName, token, voteAmount, callback) {
 		connect('tokens', function (collTokens, client) {
 			var updateTokensStatement = {};
 			updateTokensStatement['$push'] = {};
-			updateTokensStatement['$push'][arrName] = userName;
+			updateTokensStatement['$push'][arrName] = {name:userName, created:new Date()};
 			updateTokensStatement['$inc'] = {};
 			updateTokensStatement['$inc']['votecount'] = 1;
 			updateTokensStatement['$inc']['vote'] = voteAmount;
@@ -110,12 +130,15 @@ var insertVote = function (userName, token, voteAmount, callback) {
 			connect('users', function (collUsers, client) {
 				var updateUsersStatement = {};
 				updateUsersStatement['$push'] = {};
-				updateUsersStatement['$push'][arrName] = token;
+				updateUsersStatement['$push'][arrName] = {token:token, created:new Date()};
 				updateUsersStatement['$inc'] = {};
 				updateUsersStatement['$inc']['votecount'] = 1;
 				updateUsersStatement['$set'] = {};
 				updateUsersStatement['$set']['lastvote'] = new Date();
 				collUsers.update({'name':userName}, updateUsersStatement);
+				connect('news', function (collNews, client) {
+					collNews.insert({created:new Date(), name:userName, token:token, vote:voteAmount});
+				});
 				if (callback) {
 					callback();
 				}
@@ -140,6 +163,8 @@ module.exports.getBestTokens = getBestTokens;
 module.exports.getWorstTokens = getWorstTokens;
 module.exports.getHottestTokens = getHottestTokens;
 module.exports.getRecentTokens = getRecentTokens;
+module.exports.getRecentlyVotedTokens = getRecentlyVotedTokens;
+module.exports.getRecentNews = getRecentNews;
 module.exports.insertUser = insertUser;
 module.exports.insertToken = insertToken;
 module.exports.insertVote = insertVote;
