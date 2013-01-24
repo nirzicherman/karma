@@ -1,7 +1,7 @@
 var mongodb = require('mongodb');
 
 var connect = function (coll, callback) {
-	var server = new mongodb.Server("127.0.0.1", 27017, {});
+	var server = new mongodb.Server("172.16.0.9", 27017, {});
 	new mongodb.Db('karmasite', server, {w:0}).open(function (error, client) {
 		if (error) {
 			throw error;

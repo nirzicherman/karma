@@ -1,0 +1,45 @@
+body {
+	padding-top: 60px;
+	padding-bottom: 40px;
+}
+
+
+.tokens {
+    list-style: none outside none;
+}
+
+.token {
+	margin-bottom: 20px;
+}
+.token:nth-child(odd) {
+	margin-left: 0;
+}
+.token-controls {
+	width: 34px;
+}
+.token .btn {
+	margin-bottom: 8px;
+}
+.token-itself {
+	position: relative;
+	margin: 0;
+	padding: 0;
+	width: 256px;
+	height: 76px;
+	background-image: url(https://twimg0-a.akamaihd.net/profile_images/1585436356/apu39.gif);
+	background-position: 50% 50%;
+	background-size: 100% Auto;
+}
+.token-overlay {
+	margin: 0;
+	padding: 8px;
+	width: 240px;
+	height: 60px;
+	background-color: rgba(0,0,0,0.55);
+}
+
+.token h4 {
+	color: white;
+	position: absolute;
+	bottom: 0;
+}

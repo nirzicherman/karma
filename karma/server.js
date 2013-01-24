@@ -6,6 +6,8 @@ app.use(express.cookieParser('thisIStheSecret0fExpreSS'));
 
 app.use(express.bodyParser());
 
+app.use(express.static(__dirname + '/public'));
+
 app.engine('.html', require('ejs').renderFile);
 
 app.get('/', function (req, res) {
