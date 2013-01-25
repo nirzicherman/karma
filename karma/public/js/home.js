@@ -23,6 +23,8 @@ function postKarma( token, vote ) {
 		dataType: "json",
 		contentType: "application/json; charset=utf-8",
 		success: function( postKarmaResponse ) {
+			window.location.reload();
+			// TODO: more ajaxy
 
 		}
 	});
